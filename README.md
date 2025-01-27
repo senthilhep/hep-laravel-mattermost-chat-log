@@ -37,8 +37,6 @@ You can provide the eight logging levels defined in the [RFC 5424 specification]
 
 <b>Note*:</b> Make sure to set the <b>LOG_MATTERMOST_CHAT_WEBHOOK_URL</b> env variable.
 
-Here, you can set multiple mattermost chat webhook url as comma separated value for the <b>LOG_MATTERMOST_CHAT_WEBHOOK_URL</b> env variable.
-
 In order to notify different users for different log levels, you can set the corresponding env keys mentioned to configure in the `logging.php` file. 
 
 ## License
