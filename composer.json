@@ -1,0 +1,33 @@
+{
+    "name": "senthilhep/hep-laravel-mattermost-chat-log",
+    "description": "Brings up the option for sending the logs to mattermost chat.",
+    "keywords": [
+        "mattermost-chat",
+        "laravel"
+    ],
+    "homepage": "https://github.com/senthilhep/hep-laravel-mattermost-chat-log",
+    "support": {
+        "issues": "https://github.com/senthilhep/hep-laravel-mattermost-chat-log/issues",
+        "source": "https://github.com/senthilhep/hep-laravel-mattermost-chat-log"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Senthil Prabu",
+            "email": "senthilprabu@heptagon.in"
+        }
+    ],
+    "require": {
+        "php": "^7.3|^8.0"
+    },
+    "require-dev": {
+        "monolog/monolog": "^2.0|^3.0",
+        "illuminate/support": "^7.0|^8.0|^9.0|^10.0",
+        "guzzlehttp/guzzle": "^5.3.3|^6.2.1|^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Enigma\\": "src/"
+        }
+    }
+}
