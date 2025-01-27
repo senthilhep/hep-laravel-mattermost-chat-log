@@ -28,7 +28,7 @@ Errors reported with a level greater than the configured setting will be logged 
     'driver' => 'monolog',
     'url' => env('MATTERMOST_WEBHOOK', ''),
     'error_level' => env('LOG_SLACK_ERROR_LEVEL' , 400),
-    'timezone' => env('LOG_MATTERMOST_CHAT_TIMEZONE' , 'Asia/Kolkata')
+    'timezone' => env('LOG_MATTERMOST_CHAT_TIMEZONE' , 'Asia/Kolkata'),
     'handler' => \Enigma\MattermostChatHandler::class,
 ],
 ```
