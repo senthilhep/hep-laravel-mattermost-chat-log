@@ -11,19 +11,43 @@ use Monolog\LogRecord;
 class MattermostChatHandler extends AbstractProcessingHandler
 {
     /**
-     * Write a log record to the Mattermost chat channel.
+     * Sends a log record to the configured Mattermost chat channel if the log level meets or exceeds the specified threshold.
      *
-     * @param LogRecord $record The log record to be written.
+     * @param LogRecord $record - The log record containing attributes such as level, message, and context.
      * @return void
      */
     protected function write(LogRecord $record): void
     {
-        if ($record->level >= Config::get('logging.channels.mattermost-chat.error_level')) {
-            Http::withHeaders([
-                'Content-Type' => 'application/json'
-            ])->post(Config::get('logging.channels.mattermost-chat.url'), $this->getRequestBody($record));
+        $params = $record->toArray();
+        if ($this->isErrorLevelOrAbove($params['level'])) {
+            $this->sendToChannel($record);
         }
     }
+
+    /**
+     * Determines if the given log level is at or above the configured error level.
+     *
+     * @param int $level The log level to check.
+     * @return bool True if the log level is equal to or higher than the configured error level, false otherwise.
+     */
+    private function isErrorLevelOrAbove(int $level): bool
+    {
+        return $level >= Config::get('logging.channels.mattermost-chat.error_level');
+    }
+
+    /**
+     * Sends the formatted log record to the configured Mattermost chat channel.
+     *
+     * @param LogRecord $record The log record containing message, datetime, and formatted properties.
+     * @return void
+     */
+    private function sendToChannel(LogRecord $record): void
+    {
+        Http::withHeaders([
+            'Content-Type' => 'application/json',
+        ])->post(Config::get('logging.channels.mattermost-chat.url'), $this->getRequestBody($record));
+    }
+
 
     /**
      * Builds and returns the request body for the Mattermost chat logging channel.
@@ -33,11 +57,41 @@ class MattermostChatHandler extends AbstractProcessingHandler
      */
     protected function getRequestBody($record): array
     {
-        $timezone = (Config::get('logging.channels.mattermost-chat.timezone') != null && !empty(Config::get('logging.channels.mattermost-chat.timezone'))) ? Config::get('logging.channels.mattermost-chat.timezone') : 'Asia/Kolkata';
-        return [
-            'text' => "<!channel> **Error: " . $record->message . "Date&Time: " . Carbon::parse(strtotime($record->datetime))->timezone($timezone)->format('Y-m-d h:i: A') . "** \n" . $this->getLevelContent($record)
+        $configuredTimezone = $this->getConfiguredTimezone();
+        $text = $this->prepareText($record, $configuredTimezone);
 
-        ];
+        return ['text' => $text];
+    }
+
+    /**
+     * Retrieves the configured timezone for the Mattermost chat logging channel.
+     *
+     * @return string The timezone value from the configuration, or a default value of 'Asia/Kolkata' if not set.
+     */
+    private function getConfiguredTimezone(): string
+    {
+        $timezone = Config::get('logging.channels.mattermost-chat.timezone');
+        return !empty($timezone) ? $timezone : 'Asia/Kolkata';
+    }
+
+    /**
+     * Prepares and formats the text to be sent with log details.
+     *
+     * @param $record - The log record containing message, datetime, and formatted properties.
+     * @param $configuredTimezone - The timezone to which the datetime should be converted.
+     * @return string The formatted string containing the log message and metadata.
+     */
+    private function prepareText($record, $configuredTimezone): string
+    {
+        $dateTime = Carbon::parse(strtotime($record->datetime))
+            ->timezone($configuredTimezone)
+            ->format('Y-m-d h:i: A');
+
+        $text = "<!channel> **Error: " . $record->message;
+        $text .= "\n" . "Date&Time: " . $dateTime . "**";
+        $text .= "\n" . $this->getLevelContent($record);
+
+        return $text;
     }
 
     /**
