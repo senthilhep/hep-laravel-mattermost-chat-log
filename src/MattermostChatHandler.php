@@ -102,7 +102,8 @@ class MattermostChatHandler extends AbstractProcessingHandler
             ->timezone($configuredTimezone)
             ->format('Y-m-d h:i: A');
 
-        $text = "<!channel> **Error: " . $record->message;
+        $text = "<!channel> **Application: " . Config::get('app.name');
+        $text .= "\n" . "Error: " . $record->message;
         $text .= "\n" . "Date&Time: " . $dateTime . "**";
         $text .= "\n" . $this->getLevelContent($record);
 
