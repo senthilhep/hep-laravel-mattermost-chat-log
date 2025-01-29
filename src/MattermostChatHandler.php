@@ -19,21 +19,36 @@ class MattermostChatHandler extends AbstractProcessingHandler
     protected function write(LogRecord $record): void
     {
         $params = $record->toArray();
-        if ($this->isErrorLevelOrAbove($params['level'])) {
+        if ($this->isErrorLevelOrAbove($params)) {
             $this->sendToChannel($record);
         }
     }
 
     /**
-     * Determines if the given log level is at or above the configured error level.
+     * Determines if the log level is equal to or higher than the configured error level
+     * and if the message is not classified as a special message.
      *
-     * @param int $level The log level to check.
-     * @return bool True if the log level is equal to or higher than the configured error level, false otherwise.
+     * @param array $params An array containing the log parameters, including 'level' and 'message'.
+     * @return bool True if the log level is error level or above and the message is not special, false otherwise.
      */
-    private function isErrorLevelOrAbove(int $level): bool
+    private function isErrorLevelOrAbove(array $params): bool
     {
-        return $level >= Config::get('logging.channels.mattermost-chat.error_level');
+        return $params['level'] >= Config::get('logging.channels.mattermost-chat.error_level') && $this->isNotSpecialMessage($params['message']);
+
     }
+
+    /**
+     * Determines if the given message is not considered a "special" message.
+     *
+     * @param string $message The message string to evaluate.
+     * @return bool True if the message is not special, otherwise false.
+     */
+    private function isNotSpecialMessage(string $message): bool
+    {
+        $lowerMessage = strtolower($message);
+        return !str_contains($lowerMessage, 'not instantiable') && !str_contains($lowerMessage, 'not instantiate');
+    }
+
 
     /**
      * Sends the formatted log record to the configured Mattermost chat channel.
