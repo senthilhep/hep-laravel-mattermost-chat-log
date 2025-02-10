@@ -46,7 +46,7 @@ class MattermostChatHandler extends AbstractProcessingHandler
     private function isNotSpecialMessage(string $message): bool
     {
         $lowerMessage = strtolower($message);
-        return !str_contains($lowerMessage, 'not instantiable') && !str_contains($lowerMessage, 'not instantiate');
+        return !str_contains($lowerMessage, 'not instantiable') && !str_contains($lowerMessage, 'not instantiate') && !str_contains($lowerMessage, 'credential expiration extension due');
     }
 
 
